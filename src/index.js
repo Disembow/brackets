@@ -1,43 +1,42 @@
 module.exports = function check(str, bracketsConfig) {
-  const stack = [];
-  const openBrackets = ['(', '{', '[', '|', '1', '3', '5', '7', '8']
-  const closeBrackets = {
-      [')']: '(',
-      ['}']: '{',
-      [']']: '[',
-      ['|']: '|',
-      ['2']: '1',
-      ['4']: '3',
-      ['6']: '5',
-      ['7']: '7',
-      ['8']: '8',
-  }
+  if (str.length % 2 !== 0) return false;
 
-  for (i = 0; i < str.length; i++) {
-      let currentSymbol = str[i];
-      // console.log(currentSymbol);
+  let open = [];
+  let close = [];
+  let equal = [];
+  let stack = [];
 
-      if (openBrackets.includes(currentSymbol)) {
-          stack.push(currentSymbol);
-          // console.log(stack);
+  bracketsConfig.map((e) => {
+    if (e[0] === e[1]) {
+      equal.push(e[0]);
+    } else {
+      open.push(e[0]);
+      close.push(e[1]);
+    }
+  });
+
+  for (let i = 0; i < str.length; i++) {
+    let closeIndex = close.indexOf(str[i]);
+    let equalIndex = equal.indexOf(str[i]);
+
+    if (open.includes(str[i])) {
+      stack.push(str[i]);
+    } else if (close.includes(str[i])) {
+      if (stack.length === 0) return false;
+
+      if (stack[stack.length - 1] === open[closeIndex]) {
+        stack.pop();
       } else {
-          if (stack.length === 0) {
-              return false;
-          }
-
-          let topElement = stack[stack.length - 1];
-          // console.log(topElement);
-          
-          if (closeBrackets[currentSymbol] === topElement) {
-              stack.pop();
-              // console.log(stack);
-          } else {
-              return false;
-          }
+        stack.push(str[i]);
       }
+    } else if (equal.includes(str[i])) {
+      if (stack[stack.length - 1] === equal[equalIndex]) {
+        stack.pop();
+      } else {
+        stack.push(str[i]);
+      }
+    }
   }
-  return stack.length === 0 || stack.length % 2 === 0;
-}
 
-
-
+  return stack.length === 0;
+};
